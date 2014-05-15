@@ -1,0 +1,36 @@
+{
+    "name": "brain/amygdala",
+    "description": "Simplify request sniffing and getting in WordPress.",
+    "authors": [
+        {
+            "name": "Giuseppe Mazzapica",
+            "email": "giuseppe.mazzapica@gmail.com",
+            "homepage": "http://gm.zoomlab.it",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/Giuseppe-Mazzapica/Amygdala/issues",
+        "source": "https://github.com/Giuseppe-Mazzapica/Amygdala"
+    },
+    "license": "GPL-2.0+",
+    "require": {
+        "php": ">=5.4",
+        "brain/brain": "dev-master",
+        "brain/support": "dev-master"
+    },
+    "autoload": {
+        "files": ["boot.php"],
+        "psr-4": {
+            "Brain\\Amygdala\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Brain\\Amygdala\\Tests\\": "tests/src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}
