@@ -28,18 +28,38 @@ class Amygdala {
         $this->prototype = $prototype;
     }
 
+    /**
+     * Get the query bag
+     *
+     * @return \Brain\Amygdala\Bag
+     */
     function getQuery() {
         return $this->query;
     }
 
+    /**
+     * Get the post bag
+     *
+     * @return \Brain\Amygdala\Bag
+     */
     function getPost() {
         return $this->post;
     }
 
+    /**
+     * Get the server bag
+     *
+     * @return \Brain\Amygdala\Bag
+     */
     function getServer() {
         return $this->server;
     }
 
+    /**
+     * Get the data bag
+     *
+     * @return \Brain\Amygdala\Bag
+     */
     function getData() {
         return $this->data;
     }
