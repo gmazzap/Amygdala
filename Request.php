@@ -3,7 +3,7 @@
 class Request extends Facade {
 
     public static function getBindId() {
-        return 'request';
+        return 'amygdala';
     }
 
 }

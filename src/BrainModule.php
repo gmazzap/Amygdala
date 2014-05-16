@@ -6,16 +6,16 @@ use Brain\Module;
 class BrainModule implements Module {
 
     function getBindings( Container $c ) {
-        $c["bag"] = $c->factory( function() {
+        $c["amygdala.bag"] = $c->factory( function() {
             return new Bag;
         } );
-        $c["request"] = function($c) {
-            return new Amygdala( $c["bag"] );
+        $c["amygdala"] = function($c) {
+            return new Amygdala( $c["amygdala.bag"] );
         };
     }
 
     function boot( Container $c ) {
-        $c->get( 'request' )->sniff();
+        $c->get( 'amygdala' )->sniff();
     }
 
     function getPath() {
