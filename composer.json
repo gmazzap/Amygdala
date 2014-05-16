@@ -19,11 +19,16 @@
         "brain/brain": "dev-master",
         "brain/support": "dev-master"
     },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*",
+        "mockery/mockery": "dev-master"
+    },
     "autoload": {
         "files": ["boot.php"],
         "psr-4": {
             "Brain\\Amygdala\\": "src/"
-        }
+        },
+        "classmap": ["Request.php"]
     },
     "autoload-dev": {
         "psr-4": {
