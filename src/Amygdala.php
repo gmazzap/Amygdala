@@ -1,7 +1,10 @@
 <?php namespace Brain\Amygdala;
 
 /**
- * Wrap request informations and ease the getting of data withouh havin gto deal with superglobals.
+ * Wrap request informations and ease the getting of data without having to deal with superglobals.
+ *
+ * @package Brain\Amygdala
+ * @version 0.1
  */
 class Amygdala {
 
