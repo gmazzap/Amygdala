@@ -115,6 +115,35 @@ class AmygdalaTest extends TestCase {
         assertEquals( htmlentities( '&"a"àà', ENT_QUOTES ), $a->getWithEntities( 'key', 'foo' ) );
     }
 
+    function testRequest() {
+        $amygdala = \Mockery::mock( 'Brain\Amygdala\Amygdala' )->makePartial();
+        $amygdala->shouldReceive( 'contextIs' )
+            ->with( 'server', 'REQUEST_METHOD', 'POST' )
+            ->andReturn( TRUE );
+        $bag = \Mockery::mock( 'Brain\Amygdala\Bag' );
+        $bag->shouldReceive( 'exchangeArray' )
+            ->with( \Mockery::type( 'array' ) )
+            ->atLeast( 1 )
+            ->andReturnNull();
+        $bag->shouldReceive( 'setId' )
+            ->with( \Mockery::anyOf( 'query', 'post' ) )
+            ->atLeast( 1 )
+            ->andReturnSelf();
+        $amygdala->set( 'query' );
+        $amygdala->set( 'post' );
+        $amygdala->set( 'query', 'foo', 'bar' );
+        $amygdala->set( 'query', 'bar', 'baz' );
+        $amygdala->set( 'post', 'foo', 'barbar' );
+        $amygdala->set( 'post', 'baz', 'foo' );
+        assertEquals( 'bar', $amygdala->query( 'foo' ) );
+        assertEquals( 'baz', $amygdala->query( 'bar' ) );
+        assertEquals( 'barbar', $amygdala->post( 'foo' ) );
+        assertEquals( 'foo', $amygdala->post( 'baz' ) );
+        assertEquals( 'barbar', $amygdala->request( 'foo' ) );
+        assertEquals( 'baz', $amygdala->request( 'bar' ) );
+        assertEquals( 'foo', $amygdala->request( 'baz' ) );
+    }
+
     function testSet() {
         $a = $this->get();
         $a->key = new \ArrayObject();
@@ -138,11 +167,7 @@ class AmygdalaTest extends TestCase {
 
     function testSimulate() {
         $amygdala = \Mockery::mock( 'Brain\Amygdala\Amygdala' )->makePartial();
-        $bag = \Mockery::mock( 'Brain\Amygdala\Bag' );
-        $bag->shouldReceive( 'exchangeArray' )
-            ->with( \Mockery::type( 'array' ) )
-            ->atLeast( 1 )
-            ->andReturnNull();
+        $bag = \Mockery::mock( 'Brain\Amygdala\Bag' )->makePartial();
         $bag->shouldReceive( 'setId' )
             ->with( \Mockery::anyOf( 'query', 'post', 'server', 'data' ) )
             ->atLeast( 1 )
@@ -152,8 +177,12 @@ class AmygdalaTest extends TestCase {
         $path = '/path/to/somewhere';
         $query = ['foo' => 'bar' ];
         $post = ['bar' => 'baz' ];
-        $server = ['method' => 'POST' ];
+        $server = [ 'REQUEST_METHOD' => 'POST' ];
         assertEquals( $amygdala, $amygdala->simulate( $path, $query, $post, $server ) );
+        assertEquals( $path, $amygdala->path() );
+        assertEquals( $query, $amygdala->getRaw( 'query' ) );
+        assertEquals( $post, $amygdala->getRaw( 'post' ) );
+        assertEquals( 'POST', $amygdala->server( 'REQUEST_METHOD' ) );
     }
 
 }

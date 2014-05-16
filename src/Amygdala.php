@@ -54,7 +54,7 @@ class Amygdala {
      * @return mixed
      */
     function get( $key = NULL, $index = NULL, $default = NULL, $filter = NULL ) {
-        $value = $this->getContext( $key, $index, $default );
+        $value = $this->getContext( $key, $index );
         if ( ! is_null( $value ) && $filter !== FALSE ) {
             if ( is_array( $value ) && is_null( $index ) ) {
                 return call_user_func( 'filter_var_array', $value, (array) $filter );
@@ -73,6 +73,17 @@ class Amygdala {
             $value = $default;
         }
         return $value;
+    }
+
+    /**
+     * Get values form one of the parameters bag with no filter or default
+     *
+     * @param string $key       Id of the bag, 'query', 'post', 'server' or 'data'
+     * @param string $index     The key to get
+     * @return mixed
+     */
+    function getRaw( $key = NULL, $index = NULL ) {
+        return $this->getContext( $key, $index );
     }
 
     /**
@@ -165,18 +176,6 @@ class Amygdala {
     }
 
     /**
-     * Set a value in one of the bags
-     *
-     * @param string $key   Id of the bag, 'query', 'post', 'server' or 'data'
-     * @param string $index The key to set
-     * @param mixed $value  The value to set
-     * @return \Brain\Amygdala\Amygdala
-     */
-    function set( $key = NULL, $index = NULL, $value = NULL ) {
-        return $this->setContext( $key, $index, $value );
-    }
-
-    /**
      * A short-cut to call get for 'query' bag
      *
      * @param string $index     The key to get
@@ -244,6 +243,18 @@ class Amygdala {
         } else {
             return $this->query( $index, $default, $filter );
         }
+    }
+
+    /**
+     * Set a value in one of the bags
+     *
+     * @param string $key   Id of the bag, 'query', 'post', 'server' or 'data'
+     * @param string $index The key to set
+     * @param mixed $value  The value to set
+     * @return \Brain\Amygdala\Amygdala
+     */
+    function set( $key = NULL, $index = NULL, $value = NULL ) {
+        return $this->setContext( $key, $index, $value );
     }
 
     /**
@@ -429,7 +440,7 @@ class Amygdala {
         $ip = isset( $server['REMOTE_ADDR'] ) ? $server['REMOTE_ADDR'] : NULL;
         if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) $ip = '127.0.0.1';
         $port = isset( $server['SERVER_NAME'] ) ? $server['SERVER_NAME'] : NULL;
-        if ( ! in_numeric( $port ) || (int) $port <= 0 ) $port = 80;
+        if ( ! is_numeric( $port ) || (int) $port <= 0 ) $port = 80;
         $name = isset( $server['SERVER_NAME'] ) ? $server['SERVER_NAME'] : NULL;
         if ( ! filter_var( $name, FILTER_SANITIZE_URL ) ) $name = 'www.example.com';
         $host = isset( $server['HTTP_HOST'] ) ? $server['HTTP_HOST'] : NULL;
