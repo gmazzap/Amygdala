@@ -47,32 +47,9 @@ class AmygdalaTest extends TestCase {
 
     function testGetFilterVarWithArray() {
         $a = $this->get();
-        $a->key = new \ArrayObject( [ 'foo' => 'bar', 'bar' => [ 'a' => 'b', 'c' => 'd' ] ] );
-        $cb = function( $base ) {
-            return $base . ' - F!';
-        };
-        $filter_cb = [ FILTER_CALLBACK, [ 'options' => $cb, 'flags' => FILTER_REQUIRE_ARRAY ] ];
-        $expected_bar = [ 'a' => 'b - F!', 'c' => 'd - F!' ];
-        assertEquals( $expected_bar, $a->get( 'key', 'bar', 'Default!', $filter_cb ) );
-        assertEquals( '', $a->get( 'key', 'foo', 'Default!', FILTER_VALIDATE_URL ) );
-    }
-
-    function testGetFilterVarArray() {
-        $a = $this->get();
-        $a->key = new \ArrayObject( [ 'foo' => 'bar', 'bar' => [ 'a' => 'b', 'c' => 'd' ] ] );
-        $cb = function( $base ) {
-            return str_repeat( $base, 3 );
-        };
-        $filters = [
-            'foo' => FILTER_SANITIZE_STRING,
-            'bar' => [
-                'filter'  => FILTER_CALLBACK,
-                'flags'   => FILTER_REQUIRE_ARRAY,
-                'options' => $cb
-            ]
-        ];
-        $expected = [ 'foo' => 'bar', 'bar' => [ 'a' => 'bbb', 'c' => 'ddd' ] ];
-        assertEquals( $expected, $a->get( 'key', NULL, NULL, $filters ) );
+        $a->key = new \ArrayObject( [ 'foo' => 'bar', 'bar' => [ 'a' => '1', 'c' => 'foo' ] ] );
+        $expected_bar = [ 'a' => '1', 'c' => '' ];
+        assertEquals( $expected_bar, $a->get( 'key', 'bar', '', FILTER_SANITIZE_NUMBER_INT ) );
     }
 
     function testGetNumeric() {

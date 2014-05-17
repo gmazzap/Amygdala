@@ -76,16 +76,15 @@ class Amygdala {
     function get( $key = NULL, $index = NULL, $default = NULL, $filter = NULL ) {
         $value = $this->getContext( $key, $index );
         if ( $filter !== FALSE ) {
+            $filter_def = FILTER_SANITIZE_STRING;
             if ( is_null( $value ) && is_null( $default ) ) {
                 $filter = FALSE;
             } elseif ( is_array( $filter ) ) {
                 $filter = array_values( $filter );
-                $f = isset( $filter[0] ) && is_int( $filter[0] ) ?
-                    $filter[0] :
-                    FILTER_SANITIZE_STRING;
+                $f = isset( $filter[0] ) && is_int( $filter[0] ) ? $filter[0] : $filter_def;
                 $fopt = isset( $filter[1] ) ? $filter[1] : NULL;
             } else {
-                $f = is_int( $filter ) ? $filter : FILTER_SANITIZE_STRING;
+                $f = is_int( $filter ) ? $filter : $filter_def;
                 $fopt = NULL;
             }
             if ( $filter && is_array( $value ) ) {
@@ -116,7 +115,8 @@ class Amygdala {
      * @return string
      */
     function getNumeric( $key = NULL, $index = NULL, $default = NULL ) {
-        return $this->get( $key, $index, $default, FILTER_SANITIZE_NUMBER_FLOAT );
+        $value = $this->get( $key, $index, $default, FILTER_SANITIZE_NUMBER_FLOAT );
+        return is_numeric( $value ) ? $value : '';
     }
 
     /**
@@ -128,7 +128,8 @@ class Amygdala {
      * @return int
      */
     function getInt( $key = NULL, $index = NULL, $default = NULL ) {
-        return (int) $this->getNumeric( $key, $index, $default );
+        $value = $this->getNumeric( $key, $index, $default );
+        return (int) $value ? : 0;
     }
 
     /**
@@ -180,7 +181,8 @@ class Amygdala {
      * @return string
      */
     function getEncoded( $key = NULL, $index = NULL, $default = NULL ) {
-        return $this->get( $key, $index, $default, FILTER_SANITIZE_ENCODED );
+        $val = $this->get( $key, $index, $default, FILTER_SANITIZE_ENCODED );
+        return is_string( $val ) ? $val : '';
     }
 
     /**
@@ -193,7 +195,7 @@ class Amygdala {
      */
     function getWithEntities( $key = NULL, $index = NULL, $default = NULL ) {
         $val = $this->get( $key, $index, $default, FILTER_UNSAFE_RAW );
-        return is_string( $val ) ? htmlentities( $val, ENT_QUOTES, 'utf-8' ) : NULL;
+        return is_string( $val ) ? htmlentities( $val, ENT_QUOTES, 'utf-8' ) : '';
     }
 
     /**
