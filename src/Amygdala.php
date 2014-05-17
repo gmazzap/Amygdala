@@ -75,9 +75,9 @@ class Amygdala {
      */
     function get( $key = NULL, $index = NULL, $default = NULL, $filter = NULL ) {
         $value = $this->getContext( $key, $index );
-        if ( ! is_null( $value ) && $filter !== FALSE ) {
-            if ( is_array( $value ) && is_null( $index ) ) {
-                return call_user_func( 'filter_var_array', $value, (array) $filter );
+        if ( $filter !== FALSE ) {
+            if ( is_null( $value ) && is_null( $default ) ) {
+                $filter = FALSE;
             } elseif ( is_array( $filter ) ) {
                 $filter = array_values( $filter );
                 $f = isset( $filter[0] ) && is_int( $filter[0] ) ?
@@ -88,11 +88,12 @@ class Amygdala {
                 $f = is_int( $filter ) ? $filter : FILTER_SANITIZE_STRING;
                 $fopt = NULL;
             }
-            $value = call_user_func( 'filter_var', $value, $f, $fopt );
-        } elseif ( is_null( $value ) && ! is_null( $default ) ) {
-            $value = $default;
+            if ( $filter && is_array( $value ) ) {
+                $fopt = is_null( $fopt ) ? FILTER_REQUIRE_ARRAY : $fopt | FILTER_REQUIRE_ARRAY;
+            }
         }
-        return $value;
+        if ( is_null( $value ) ) $value = $default;
+        return $filter === FALSE ? $value : call_user_func( 'filter_var', $value, $f, $fopt );
     }
 
     /**
@@ -193,6 +194,39 @@ class Amygdala {
     function getWithEntities( $key = NULL, $index = NULL, $default = NULL ) {
         $val = $this->get( $key, $index, $default, FILTER_UNSAFE_RAW );
         return is_string( $val ) ? htmlentities( $val, ENT_QUOTES, 'utf-8' ) : NULL;
+    }
+
+    /**
+     * Similar to get(), HTML tags are encoded, arrays are serialized, string returned SQL secured.
+     *
+     * @param string $key       Id of the bag, 'query', 'post', 'server' or 'data'
+     * @param string $index     The key to get
+     * @param mixed $default    Default if the specific key is not available in the bag
+     * @return string
+     */
+    function getForSqlEncoded( $key = NULL, $index = NULL, $default = NULL ) {
+        $raw = $this->get( $key, $index, $default, FILTER_UNSAFE_RAW );
+        if ( ! is_string( $raw ) && ! is_array( $raw ) ) $raw = '';
+        $cb = function( $val ) {
+            return htmlentities( $val, ENT_QUOTES, 'utf-8' );
+        };
+        $encoded = is_array( $raw ) ? array_map( $cb, $raw ) : $cb( $raw );
+        return esc_sql( maybe_serialize( $encoded ) );
+    }
+
+    /**
+     * Similar to get(), HTML tags are stripped, arrays are serialized, string returned SQL secured.
+     *
+     * @param string $key       Id of the bag, 'query', 'post', 'server' or 'data'
+     * @param string $index     The key to get
+     * @param mixed $default    Default if the specific key is not available in the bag
+     * @return string
+     */
+    function getForSql( $key = NULL, $index = NULL, $default = NULL ) {
+        $value = $this->get( $key, $index, $default, FILTER_SANITIZE_STRING );
+        if ( ! empty( $value ) ) {
+            return esc_sql( maybe_serialize( $value ) );
+        }
     }
 
     /**
