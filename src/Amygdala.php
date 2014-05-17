@@ -438,9 +438,7 @@ class Amygdala {
         $this->sniffServer();
         $this->sniffQuery();
         $this->sniffData();
-        if ( $this->method() === 'POST' ) {
-            $this->sniffPost();
-        }
+        $this->sniffPost();
     }
 
     /**
@@ -488,7 +486,10 @@ class Amygdala {
 
     private function sniffServer() {
         $definition = [
-            'REQUEST_METHOD'  => [ 'filter' => FILTER_CALLBACK, 'options' => 'strtoupper' ],
+            'REQUEST_METHOD' => [ 'filter'  => FILTER_CALLBACK, 'options' => function( $method ) {
+                $raw = strtoupper( filter_var( $method, FILTER_SANITIZE_STRING ) );
+                return in_array( $raw, [ 'GET', 'POST' ] ) ? $raw : 'GET';
+            } ],
             'QUERY_STRING'    => FILTER_UNSAFE_RAW,
             'REMOTE_ADDR'     => FILTER_VALIDATE_IP,
             'SERVER_PORT'     => FILTER_SANITIZE_NUMBER_INT,
@@ -523,16 +524,20 @@ class Amygdala {
     }
 
     private function sniffPost() {
-        $post_keys = array_keys( $_POST );
-        $filters = [ ];
-        $flag = FILTER_FLAG_STRIP_LOW | FILTER_FLAG_ENCODE_HIGH;
-        $flag_array = $flag | FILTER_REQUIRE_ARRAY;
-        $filter = [ 'filter' => FILTER_UNSAFE_RAW ];
-        foreach ( $post_keys as $key ) {
-            $filter['flags'] = filter_input( INPUT_POST, $key ) === FALSE ? $flag_array : $flag;
-            $filters[$key] = $filter;
+        if ( $this->method() === 'POST' ) {
+            $post_keys = array_keys( $_POST );
+            $filters = [ ];
+            $flag = FILTER_FLAG_STRIP_LOW | FILTER_FLAG_ENCODE_HIGH;
+            $flag_array = $flag | FILTER_REQUIRE_ARRAY;
+            $filter = [ 'filter' => FILTER_UNSAFE_RAW ];
+            foreach ( $post_keys as $key ) {
+                $filter['flags'] = filter_input( INPUT_POST, $key ) === FALSE ? $flag_array : $flag;
+                $filters[$key] = $filter;
+            }
+            $post = filter_input_array( INPUT_POST, array_combine( $post_keys, $filters ) );
+        } else {
+            $post = [ ];
         }
-        $post = filter_input_array( INPUT_POST, array_combine( $post_keys, $filters ) );
         $this->createBag( 'post', $post );
     }
 
