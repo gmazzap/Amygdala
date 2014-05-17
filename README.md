@@ -3,6 +3,8 @@ Amygdala
 
 ![Amygdala][1]
 
+[![Build Status](https://api.travis-ci.org/Giuseppe-Mazzapica/Amygdala.svg)](https://travis-ci.org/Giuseppe-Mazzapica/Amygdala)
+
 Amygdala is a package (not full plugin) that wraps request informations and ease the getting of data without having to deal with superglobals.
 
 It makes use of [composer][2] to be embedded in larger projects.
