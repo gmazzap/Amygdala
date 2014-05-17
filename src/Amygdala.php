@@ -453,6 +453,16 @@ class Amygdala {
     }
 
     /**
+     * Get the current page path pieces, i.e. the path exploded by '/'
+     *
+     * @return array
+     */
+    function pathPieces() {
+        $data = $this->data( 'path', '/', FILTER_SANITIZE_URL );
+        return $data !== '/' ? explode( '/', $data['path'] ) : [ ];
+    }
+
+    /**
      * True if the page is requested from a mobile device
      *
      * @return boolean
@@ -591,11 +601,11 @@ class Amygdala {
         if ( ! empty( $qs ) ) {
             $path = remove_query_arg( $qs, $path );
         }
-        $data = parse_url( home_url() );
-        $data['path'] = ( $path === '' ) ? '/' : rtrim( $path, '/\\? ' );
-        $data['url_pieces'] = explode( '/', $data['path'] );
-        $data['mobile'] = (bool) wp_is_mobile();
-        $data['secure'] = (bool) is_ssl();
+        $data = [
+            'path'   => ( $path === '' ) ? '/' : rtrim( $path, '/\\? ' ),
+            'mobile' => (bool) wp_is_mobile(),
+            'secure' => (bool) is_ssl()
+        ];
         $this->createBag( 'data', $data );
     }
 
