@@ -142,7 +142,7 @@ class Amygdala {
     function getRegexFiltered( $key = NULL, $index = NULL, $regex = '', $default = NULL ) {
         $value = $this->get( $key, $index, $default, FILTER_SANITIZE_STRING );
         if ( is_string( $value ) ) {
-            return preg_filter( '/' . $regex . '/i', '', $value );
+            return preg_filter( $regex, '', $value );
         }
     }
 
@@ -155,7 +155,7 @@ class Amygdala {
      * @return string
      */
     function getAlpha( $key = NULL, $index = NULL, $default = NULL ) {
-        return $this->getRegexFiltered( $key, $index, '[^a-z]', $default );
+        return $this->getRegexFiltered( $key, $index, '/[^a-z_]*/i', $default );
     }
 
     /**
@@ -167,7 +167,7 @@ class Amygdala {
      * @return string
      */
     function getAlphaNum( $key = NULL, $index = NULL, $default = NULL ) {
-        return $this->getRegexFiltered( $key, $index, '[^a-z0-9]', $default );
+        return $this->getRegexFiltered( $key, $index, '/[^a-z0-9_]*/i', $default );
     }
 
     /**
@@ -524,6 +524,7 @@ class Amygdala {
     }
 
     private function sniffPost() {
+        $post = [ ];
         if ( $this->method() === 'POST' ) {
             $post_keys = array_keys( $_POST );
             $filters = [ ];
@@ -535,8 +536,6 @@ class Amygdala {
                 $filters[$key] = $filter;
             }
             $post = filter_input_array( INPUT_POST, array_combine( $post_keys, $filters ) );
-        } else {
-            $post = [ ];
         }
         $this->createBag( 'post', $post );
     }
