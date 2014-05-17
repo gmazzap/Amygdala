@@ -564,8 +564,7 @@ class Amygdala {
     private function sniffServer() {
         $definition = [
             'REQUEST_METHOD' => [ 'filter'  => FILTER_CALLBACK, 'options' => function( $method ) {
-                $raw = strtoupper( filter_var( $method, FILTER_SANITIZE_STRING ) );
-                return in_array( $raw, [ 'GET', 'POST' ] ) ? $raw : 'GET';
+                return strtoupper( filter_var( $method, FILTER_SANITIZE_STRING ) );
             } ],
             'QUERY_STRING'    => FILTER_UNSAFE_RAW,
             'REMOTE_ADDR'     => FILTER_VALIDATE_IP,
