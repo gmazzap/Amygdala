@@ -11,6 +11,29 @@ class AmygdalaTest extends TestCase {
         return $amygdala;
     }
 
+    function testGetRequestOnPost() {
+        $query_array = [ 'foo' => 'bar', 'bar' => 'baz' ];
+        $query = new \ArrayObject( $query_array );
+        $post_array = [ 'foo' => 'barPost', 'baz' => 'foo' ];
+        $post = new \ArrayObject( $post_array );
+        $request_array = array_merge( $query_array, $post_array );
+        $request = new \ArrayObject( $request_array );
+        $a = $this->get();
+        $a->shouldReceive( 'method' )->atLeast( 1 )->withNoArgs()->andReturn( 'POST' );
+        $a->shouldReceive( 'createBag' )->with( 'request', $request_array )->andReturn( $request );
+        $a->shouldReceive( 'getQuery' )->withNoArgs()->andReturn( $query );
+        $a->shouldReceive( 'getPost' )->withNoArgs()->andReturn( $post );
+        assertEquals( $request, $a->getRequest() );
+    }
+
+    function testGetRequestOnGet() {
+        $query = new \ArrayObject( [ 'foo' => 'bar', 'bar' => 'baz' ] );
+        $a = $this->get();
+        $a->shouldReceive( 'method' )->atLeast( 1 )->withNoArgs()->andReturn( 'GET' );
+        $a->shouldReceive( 'getQuery' )->withNoArgs()->andReturn( $query );
+        assertEquals( $query, $a->getRequest() );
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -131,28 +154,13 @@ class AmygdalaTest extends TestCase {
 
     function testRequest() {
         $amygdala = \Mockery::mock( 'Brain\Amygdala\Amygdala' )->makePartial();
-        $amygdala->shouldReceive( 'contextIs' )
-            ->with( 'server', 'REQUEST_METHOD', 'POST' )
-            ->andReturn( TRUE );
         $bag = \Mockery::mock( 'Brain\Amygdala\Bag' );
-        $bag->shouldReceive( 'exchangeArray' )
-            ->with( \Mockery::type( 'array' ) )
-            ->atLeast( 1 )
-            ->andReturnNull();
-        $bag->shouldReceive( 'setId' )
-            ->with( \Mockery::anyOf( 'query', 'post' ) )
-            ->atLeast( 1 )
-            ->andReturnSelf();
-        $amygdala->set( 'query' );
-        $amygdala->set( 'post' );
-        $amygdala->set( 'query', 'foo', 'bar' );
-        $amygdala->set( 'query', 'bar', 'baz' );
-        $amygdala->set( 'post', 'foo', 'barbar' );
-        $amygdala->set( 'post', 'baz', 'foo' );
-        assertEquals( 'bar', $amygdala->query( 'foo' ) );
-        assertEquals( 'baz', $amygdala->query( 'bar' ) );
-        assertEquals( 'barbar', $amygdala->post( 'foo' ) );
-        assertEquals( 'foo', $amygdala->post( 'baz' ) );
+        $query = [ 'foo' => 'bar', 'bar' => 'baz' ];
+        $post = [ 'baz' => 'foo', 'foo' => 'barbar' ];
+        foreach ( array_merge( $query, $post ) as $key => $value ) {
+            $bag->shouldReceive( 'get' )->with( $key, "", "" )->andReturn( $value );
+        }
+        $amygdala->shouldReceive( 'getRequest' )->withNoArgs()->andReturn( $bag );
         assertEquals( 'barbar', $amygdala->request( 'foo' ) );
         assertEquals( 'baz', $amygdala->request( 'bar' ) );
         assertEquals( 'foo', $amygdala->request( 'baz' ) );

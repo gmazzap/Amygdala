@@ -16,11 +16,13 @@ class Amygdala {
 
     protected $post;
 
+    protected $request;
+
     protected $server;
 
     protected $data;
 
-    private static $keys = [ 'query', 'post', 'server', 'data' ];
+    private static $keys = [ 'query', 'post', 'server', 'data', 'request' ];
 
     private $sniffed = FALSE;
 
@@ -62,6 +64,22 @@ class Amygdala {
      */
     function getData() {
         return $this->data;
+    }
+
+    /**
+     * Get the request bag
+     *
+     * @return \Brain\Amygdala\Bag
+     */
+    function getRequest() {
+        if ( ! is_null( $this->request ) ) return $this->request;
+        $query = $this->getQuery();
+        if ( $this->method() === 'POST' ) {
+            $request = array_merge( $query->getArrayCopy(), $this->getPost()->getArrayCopy() );
+            return $this->createBag( 'request', $request );
+        } else {
+            return $query;
+        }
     }
 
     /**
@@ -313,7 +331,7 @@ class Amygdala {
     }
 
     /**
-     * Get a value from 'query' or 'post' bags.
+     * Get a value from 'request' bag.
      *
      * @param string $index     The key to get
      * @param string $default   Default if the specific key is not available in the bag
@@ -321,16 +339,7 @@ class Amygdala {
      * @return mixed
      */
     function request( $index = NULL, $default = NULL, $filter = NULL ) {
-        $is_post = $this->contextIs( 'server', 'REQUEST_METHOD', 'POST' );
-        if ( is_null( $index ) ) {
-            $query = $this->getQuery()->getArrayCopy();
-            $post = $this->getPost()->getArrayCopy();
-            return $is_post ? array_merge( $query, $post ) : $query;
-        } elseif ( $is_post && $this->contextHas( 'post', $index ) ) {
-            return $this->post( $index, $default, $filter );
-        } else {
-            return $this->query( $index, $default, $filter );
-        }
+        return $this->getRequest()->get( $index, $default, $filter );
     }
 
     /**
