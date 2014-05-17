@@ -87,8 +87,20 @@ class Amygdala {
                 $f = is_int( $filter ) ? $filter : $filter_def;
                 $fopt = NULL;
             }
-            if ( $filter && is_array( $value ) ) {
-                $fopt = is_null( $fopt ) ? FILTER_REQUIRE_ARRAY : $fopt | FILTER_REQUIRE_ARRAY;
+        }
+        if ( $filter && is_array( $value ) ) {
+            if ( is_null( $fopt ) ) {
+                $fopt = FILTER_REQUIRE_ARRAY;
+            } elseif (
+                is_array( $fopt )
+                && ( ! isset( $fopt['flags'] ) || $fopt['flags'] !== FILTER_REQUIRE_ARRAY )
+            ) {
+                $fopt['flags'] = isset( $fopt['flags'] ) && is_int( $fopt['flags'] ) ?
+                    $fopt['flags'] | FILTER_REQUIRE_ARRAY :
+                    FILTER_REQUIRE_ARRAY;
+            } elseif ( ! is_array( $fopt ) ) {
+                $fopt = is_int( $fopt ) ? [ 'options' => $fopt ] : [ ];
+                $fopt['flags'] = FILTER_REQUIRE_ARRAY;
             }
         }
         if ( is_null( $value ) ) $value = $default;
@@ -199,6 +211,21 @@ class Amygdala {
     }
 
     /**
+     * Similar to get(), HTML tags are stripped, arrays are serialized, string returned SQL secured.
+     *
+     * @param string $key       Id of the bag, 'query', 'post', 'server' or 'data'
+     * @param string $index     The key to get
+     * @param mixed $default    Default if the specific key is not available in the bag
+     * @return string
+     */
+    function getForSql( $key = NULL, $index = NULL, $default = NULL ) {
+        $value = $this->get( $key, $index, $default, FILTER_SANITIZE_STRING );
+        if ( ! empty( $value ) ) {
+            return esc_sql( maybe_serialize( $value ) );
+        }
+    }
+
+    /**
      * Similar to get(), HTML tags are encoded, arrays are serialized, string returned SQL secured.
      *
      * @param string $key       Id of the bag, 'query', 'post', 'server' or 'data'
@@ -217,18 +244,23 @@ class Amygdala {
     }
 
     /**
-     * Similar to get(), HTML tags are stripped, arrays are serialized, string returned SQL secured.
+     * Similar to get(), always return an array, mapped with a given callable.
      *
      * @param string $key       Id of the bag, 'query', 'post', 'server' or 'data'
      * @param string $index     The key to get
+     * @param callable $cb      Callback to use to map retrieved value
      * @param mixed $default    Default if the specific key is not available in the bag
-     * @return string
+     * @return array
      */
-    function getForSql( $key = NULL, $index = NULL, $default = NULL ) {
-        $value = $this->get( $key, $index, $default, FILTER_SANITIZE_STRING );
-        if ( ! empty( $value ) ) {
-            return esc_sql( maybe_serialize( $value ) );
+    function getMapped( $key = NULL, $index = NULL, $cb = NULL, $default = NULL, $filter = NULL ) {
+        $value = [ ];
+        if ( is_callable( $cb ) ) {
+            if ( is_null( $filter ) ) $filter = FILTER_UNSAFE_RAW;
+            $raw = $this->get( $key, $index, $default, $filter );
+            if ( is_null( $raw ) ) $raw = $default;
+            $value = array_map( $cb, ( is_array( $raw ) ? $raw : [ $raw ] ) );
         }
+        return $value;
     }
 
     /**

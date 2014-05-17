@@ -48,8 +48,15 @@ class AmygdalaTest extends TestCase {
     function testGetFilterVarWithArray() {
         $a = $this->get();
         $a->key = new \ArrayObject( [ 'foo' => 'bar', 'bar' => [ 'a' => '1', 'c' => 'foo' ] ] );
-        $expected_bar = [ 'a' => '1', 'c' => '' ];
-        assertEquals( $expected_bar, $a->get( 'key', 'bar', '', FILTER_SANITIZE_NUMBER_INT ) );
+        $expected_bar_int = [ 'a' => '1', 'c' => '' ];
+        $cb = function( $base ) {
+            return $base . ' - filtered';
+        };
+        $flags = FILTER_REQUIRE_ARRAY | FILTER_FLAG_STRIP_LOW;
+        $filter_cb = [ FILTER_CALLBACK, ['options' => $cb, 'flags' => $flags ] ];
+        $expected_bar_cb = [ 'a' => '1 - filtered', 'c' => 'foo - filtered' ];
+        assertEquals( $expected_bar_int, $a->get( 'key', 'bar', '', FILTER_SANITIZE_NUMBER_INT ) );
+        assertEquals( $expected_bar_cb, $a->get( 'key', 'bar', '', $filter_cb ) );
     }
 
     function testGetNumeric() {
@@ -90,6 +97,36 @@ class AmygdalaTest extends TestCase {
         $a = $this->get();
         $a->key = new \ArrayObject( [ 'foo' => '&"a"àà' ] );
         assertEquals( htmlentities( '&"a"àà', ENT_QUOTES ), $a->getWithEntities( 'key', 'foo' ) );
+    }
+
+    function testGetForSql() {
+        $a = $this->get();
+        $a->key = new \ArrayObject( [ 'foo' => 'bar', 'bar' => ['a' => '1', 'b' => '<b>foo</b>' ] ] );
+        assertEquals( 'bar', $a->getForSql( 'key', 'foo' ) );
+        assertEquals( serialize( [ 'a' => '1', 'b' => 'foo' ] ), $a->getForSql( 'key', 'bar' ) );
+    }
+
+    function testGetForSqlEncoded() {
+        $a = $this->get();
+        $a->key = new \ArrayObject( [ 'foo' => 'bar', 'bar' => [ 'a' => '1', 'b' => '<b>foo</b>' ] ] );
+        $b = htmlentities( '<b>foo</b>' );
+        assertEquals( 'bar', $a->getForSqlEncoded( 'key', 'foo' ) );
+        assertEquals( serialize( [ 'a' => '1', 'b' => $b ] ), $a->getForSqlEncoded( 'key', 'bar' ) );
+    }
+
+    function testGetMapped() {
+        $a = $this->get();
+        $a->key = new \ArrayObject( [ 'foo' => 'bar', 'bar' => [ 'a' => '1', 'b' => 'foo' ] ] );
+        $cb = function( $base ) {
+            return (string) $base . ' - filtered';
+        };
+        $expected_bar_1 = [ 'a' => '1 - filtered', 'b' => 'foo - filtered' ];
+        $expected_bar_2 = [ 'a' => '1 - filtered', 'b' => ' - filtered' ];
+        $expected_bar_3 = [ 'a' => ' - filtered', 'b' => ' - filtered' ];
+        assertEquals( $expected_bar_1, $a->getMapped( 'key', 'bar', $cb, '' ) );
+        $filter_url = [ FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE ];
+        assertEquals( $expected_bar_2, $a->getMapped( 'key', 'bar', $cb, '', FILTER_SANITIZE_NUMBER_INT ) );
+        assertEquals( $expected_bar_3, $a->getMapped( 'key', 'bar', $cb, '', $filter_url ) );
     }
 
     function testRequest() {
