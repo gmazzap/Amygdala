@@ -109,7 +109,7 @@ Amygdala own code is licensed under GPLv2+. Through Composer, it install code fr
 
   [1]: https://googledrive.com/host/0Bxo4bHbWEkMscmJNYkx6YXctaWM/amygdala.png
   [2]: https://getcomposer.org/
-  [3]: https://github.com/Giuseppe-Mazzapica/Brain-WP-Project/blob/master/README.md#brain-wp-project
+  [3]: http://giuseppe-mazzapica.github.io/Brain
   [4]: http://en.wikipedia.org/wiki/Facade_pattern
   [5]: http://laravel.com/docs/facades
   [6]: https://github.com/Giuseppe-Mazzapica/Brain/blob/master/README.md
