@@ -9,7 +9,7 @@ Amygdala is a package (not full plugin) that wraps request informations and ease
 
 It makes use of [composer][2] to be embedded in larger projects.
 
-It is also a [Brain][3] module.
+It is part of the [Brain WP Project][3] module.
 
 ###API###
 
@@ -109,7 +109,7 @@ Amygdala own code is licensed under GPLv2+. Through Composer, it install code fr
 
   [1]: https://googledrive.com/host/0Bxo4bHbWEkMscmJNYkx6YXctaWM/amygdala.png
   [2]: https://getcomposer.org/
-  [3]: https://github.com/Giuseppe-Mazzapica/Brain
+  [3]: https://github.com/Giuseppe-Mazzapica/Brain-WP-Project/blob/master/README.md#brain-wp-project
   [4]: http://en.wikipedia.org/wiki/Facade_pattern
   [5]: http://laravel.com/docs/facades
   [6]: https://github.com/Giuseppe-Mazzapica/Brain/blob/master/README.md
