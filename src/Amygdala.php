@@ -601,10 +601,12 @@ class Amygdala {
         if ( ! empty( $qs ) ) {
             $path = remove_query_arg( $qs, $path );
         }
+        $ssl = (bool) is_ssl();
         $data = [
             'path'   => ( $path === '' ) ? '/' : rtrim( $path, '/\\? ' ),
             'mobile' => (bool) wp_is_mobile(),
-            'secure' => (bool) is_ssl()
+            'secure' => (bool) $ssl,
+            'scheme' => $ssl ? 'https' : 'http'
         ];
         $this->createBag( 'data', $data );
     }
