@@ -541,7 +541,9 @@ class Amygdala {
         $this->createBag( 'query', $query );
         $this->createBag( 'post', $post );
         $method = isset( $server['REQUEST_METHOD'] ) ? $server['REQUEST_METHOD'] : NULL;
-        if ( ! in_array( $method, ['GET', 'POST' ] ) ) $method = 'GET';
+        if ( ! in_array( $method, ['GET', 'POST' ] ) ) {
+            $method = ! empty( $post ) ? 'POST' : 'GET';
+        }
         $ip = isset( $server['REMOTE_ADDR'] ) ? $server['REMOTE_ADDR'] : NULL;
         if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) $ip = '127.0.0.1';
         $port = isset( $server['SERVER_NAME'] ) ? $server['SERVER_NAME'] : NULL;
