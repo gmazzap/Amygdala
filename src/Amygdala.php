@@ -533,7 +533,7 @@ class Amygdala {
      *
      * @param string $path  Url path to fake
      * @param array $query  Query data to fake
-     * @param array $post   Post data t fake
+     * @param array $post   Post data to fake
      * @param array $server Server data to fake
      * @return \Brain\Amygdala\Amygdala
      */
@@ -541,7 +541,7 @@ class Amygdala {
         $this->createBag( 'query', $query );
         $this->createBag( 'post', $post );
         $method = isset( $server['REQUEST_METHOD'] ) ? $server['REQUEST_METHOD'] : NULL;
-        if ( ! in_array( $method, ['GET', 'POST' ] ) ) {
+        if ( ! in_array( $method, [ 'GET', 'POST' ], TRUE ) ) {
             $method = ! empty( $post ) ? 'POST' : 'GET';
         }
         $ip = isset( $server['REMOTE_ADDR'] ) ? $server['REMOTE_ADDR'] : NULL;
