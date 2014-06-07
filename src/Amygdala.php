@@ -426,6 +426,15 @@ class Amygdala {
     }
 
     /**
+     * Get current server port (usually 80 for http or 443 https)
+     *
+     * @return string
+     */
+    function host() {
+        return $this->server( 'HTTP_HOST', NULL, FILTER_SANITIZE_URL );
+    }
+
+    /**
      * Get the http referer for current request
      *
      * @return string
