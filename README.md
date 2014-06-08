@@ -9,7 +9,7 @@ Amygdala is a package (not full plugin) that wraps request informations and ease
 
 It makes use of [composer][2] to be embedded in larger projects.
 
-It is part of the [Brain WP Project][3] module.
+It is part of the [Brain Project][3] module.
 
 ###API###
 
