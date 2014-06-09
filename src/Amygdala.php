@@ -623,20 +623,7 @@ class Amygdala {
     }
 
     private function sniffPost() {
-        $post = [ ];
-        if ( $this->method() === 'POST' ) {
-            $post_keys = array_keys( $_POST );
-            $filters = [ ];
-            $flag = FILTER_FLAG_STRIP_LOW | FILTER_FLAG_ENCODE_HIGH;
-            $flag_array = $flag | FILTER_REQUIRE_ARRAY;
-            $filter = [ 'filter' => FILTER_UNSAFE_RAW ];
-            foreach ( $post_keys as $key ) {
-                $filter['flags'] = filter_input( INPUT_POST, $key ) === FALSE ? $flag_array : $flag;
-                $filters[$key] = $filter;
-            }
-            $post = filter_input_array( INPUT_POST, array_combine( $post_keys, $filters ) );
-        }
-        $this->createBag( 'post', $post );
+        $this->createBag( 'post', (array) filter_input_array( INPUT_POST ) );
     }
 
 }
