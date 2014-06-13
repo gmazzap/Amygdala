@@ -462,13 +462,13 @@ class Amygdala {
     }
 
     /**
-     * Get the current page path pieces, i.e. the path exploded by '/'
+     * Get the current page path chunks, i.e. the path exploded by '/'
      *
      * @return array
      */
-    function pathPieces() {
+    function pathChunks() {
         $data = $this->data( 'path', '/', FILTER_SANITIZE_URL );
-        return $data !== '/' ? explode( '/', $data['path'] ) : [ ];
+        return $data !== '/' ? array_filter( array_values( explode( '/', $data['path'] ) ) ) : [ ];
     }
 
     /**
