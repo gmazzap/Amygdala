@@ -467,8 +467,8 @@ class Amygdala {
      * @return array
      */
     function pathChunks() {
-        $data = $this->data( 'path', '/', FILTER_SANITIZE_URL );
-        return $data !== '/' ? array_filter( array_values( explode( '/', $data['path'] ) ) ) : [ ];
+        $data = $this->path();
+        return $data !== '/' ? array_filter( array_values( explode( '/', $data ) ) ) : [ ];
     }
 
     /**
