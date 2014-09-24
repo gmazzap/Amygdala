@@ -11,19 +11,12 @@ class Amygdala {
     use \Brain\Contextable;
 
     protected $prototype;
-
     protected $query;
-
     protected $post;
-
     protected $request;
-
     protected $server;
-
     protected $data;
-
     private static $keys = [ 'query', 'post', 'server', 'data', 'request' ];
-
     private $sniffed = FALSE;
 
     function __construct( Bag $prototype ) {
@@ -99,8 +92,8 @@ class Amygdala {
                 $filter = FALSE;
             } elseif ( is_array( $filter ) ) {
                 $filter = array_values( $filter );
-                $f = isset( $filter[0] ) && is_int( $filter[0] ) ? $filter[0] : $filter_def;
-                $fopt = isset( $filter[1] ) ? $filter[1] : NULL;
+                $f = isset( $filter[ 0 ] ) && is_int( $filter[ 0 ] ) ? $filter[ 0 ] : $filter_def;
+                $fopt = isset( $filter[ 1 ] ) ? $filter[ 1 ] : NULL;
             } else {
                 $f = is_int( $filter ) ? $filter : $filter_def;
                 $fopt = NULL;
@@ -111,14 +104,14 @@ class Amygdala {
                 $fopt = FILTER_REQUIRE_ARRAY;
             } elseif (
                 is_array( $fopt )
-                && ( ! isset( $fopt['flags'] ) || $fopt['flags'] !== FILTER_REQUIRE_ARRAY )
+                && ( ! isset( $fopt[ 'flags' ] ) || $fopt[ 'flags' ] !== FILTER_REQUIRE_ARRAY )
             ) {
-                $fopt['flags'] = isset( $fopt['flags'] ) && is_int( $fopt['flags'] ) ?
-                    $fopt['flags'] | FILTER_REQUIRE_ARRAY :
+                $fopt[ 'flags' ] = isset( $fopt[ 'flags' ] ) && is_int( $fopt[ 'flags' ] ) ?
+                    $fopt[ 'flags' ] | FILTER_REQUIRE_ARRAY :
                     FILTER_REQUIRE_ARRAY;
             } elseif ( ! is_array( $fopt ) ) {
                 $fopt = is_int( $fopt ) ? [ 'options' => $fopt ] : [ ];
-                $fopt['flags'] = FILTER_REQUIRE_ARRAY;
+                $fopt[ 'flags' ] = FILTER_REQUIRE_ARRAY;
             }
         }
         if ( is_null( $value ) ) $value = $default;
@@ -431,7 +424,8 @@ class Amygdala {
      * @return string
      */
     function host() {
-        return $this->server( 'HTTP_HOST', NULL, FILTER_SANITIZE_URL );
+        $def = parse_url( home_url(), PHP_URL_HOST );
+        return $this->server( 'HTTP_HOST', $def, FILTER_SANITIZE_URL );
     }
 
     /**
@@ -549,21 +543,21 @@ class Amygdala {
     function simulate( $path = '', Array $query = [ ], Array $post = [ ], Array $server = [ ] ) {
         $this->createBag( 'query', $query );
         $this->createBag( 'post', $post );
-        $method = isset( $server['REQUEST_METHOD'] ) ? $server['REQUEST_METHOD'] : NULL;
+        $method = isset( $server[ 'REQUEST_METHOD' ] ) ? $server[ 'REQUEST_METHOD' ] : NULL;
         if ( ! in_array( $method, [ 'GET', 'POST' ], TRUE ) ) {
             $method = ! empty( $post ) ? 'POST' : 'GET';
         }
-        $ip = isset( $server['REMOTE_ADDR'] ) ? $server['REMOTE_ADDR'] : NULL;
+        $ip = isset( $server[ 'REMOTE_ADDR' ] ) ? $server[ 'REMOTE_ADDR' ] : NULL;
         if ( ! filter_var( $ip, FILTER_VALIDATE_IP ) ) $ip = '127.0.0.1';
-        $port = isset( $server['SERVER_NAME'] ) ? $server['SERVER_NAME'] : NULL;
+        $port = isset( $server[ 'SERVER_NAME' ] ) ? $server[ 'SERVER_NAME' ] : NULL;
         if ( ! is_numeric( $port ) || (int) $port <= 0 ) $port = 80;
-        $name = isset( $server['SERVER_NAME'] ) ? $server['SERVER_NAME'] : NULL;
+        $name = isset( $server[ 'SERVER_NAME' ] ) ? $server[ 'SERVER_NAME' ] : NULL;
         if ( ! filter_var( $name, FILTER_SANITIZE_URL ) ) $name = 'www.example.com';
-        $host = isset( $server['HTTP_HOST'] ) ? $server['HTTP_HOST'] : NULL;
+        $host = isset( $server[ 'HTTP_HOST' ] ) ? $server[ 'HTTP_HOST' ] : NULL;
         if ( ! filter_var( $host, FILTER_SANITIZE_URL ) ) $host = 'www.example.com';
-        $referer = isset( $server['HTTP_REFERER'] ) ? $server['HTTP_REFERER'] : NULL;
+        $referer = isset( $server[ 'HTTP_REFERER' ] ) ? $server[ 'HTTP_REFERER' ] : NULL;
         if ( ! filter_var( $referer, FILTER_SANITIZE_URL ) ) $referer = '';
-        $agent = isset( $server['HTTP_USER_AGENT'] ) ? $server['HTTP_USER_AGENT'] : NULL;
+        $agent = isset( $server[ 'HTTP_USER_AGENT' ] ) ? $server[ 'HTTP_USER_AGENT' ] : NULL;
         if ( ! filter_var( $agent, FILTER_SANITIZE_STRING ) ) $agent = '';
         $server_data = [
             'REQUEST_METHOD'  => $method,
@@ -585,8 +579,8 @@ class Amygdala {
     private function sniffServer() {
         $definition = [
             'REQUEST_METHOD' => [ 'filter'  => FILTER_CALLBACK, 'options' => function( $method ) {
-                return strtoupper( filter_var( $method, FILTER_SANITIZE_STRING ) );
-            } ],
+                    return strtoupper( filter_var( $method, FILTER_SANITIZE_STRING ) );
+                } ],
             'QUERY_STRING'    => FILTER_UNSAFE_RAW,
             'REMOTE_ADDR'     => FILTER_VALIDATE_IP,
             'SERVER_PORT'     => FILTER_SANITIZE_NUMBER_INT,
