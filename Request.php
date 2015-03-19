@@ -1,10 +1,10 @@
 <?php namespace Brain;
 
 /**
- * Wrap request informations and ease the getting of data without having to deal with superglobals.
+ * Wrap request information and ease the getting of data without having to deal with superglobals.
  *
  * This class is a sort of *proxy* to ease the package API calls.
- * All the API functions are defined in the class Brain\Striatum\API and can be called using this
+ * All the API functions are defined in the class Brain\Amygdala and can be called using this
  * class static methods, like:
  *
  *     Brain\Request::getInt( 'query', 'page' );
