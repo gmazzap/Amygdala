@@ -16,7 +16,7 @@
     "license": "GPL-2.0+",
     "require": {
         "php": ">=5.4",
-        "brain/brain": "dev-master",
+        "brain/brain": "dev-legacy",
         "brain/support": "dev-master"
     },
     "require-dev": {
@@ -37,5 +37,10 @@
     },
     "config": {
         "optimize-autoloader": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
     }
 }
