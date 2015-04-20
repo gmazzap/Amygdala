@@ -601,7 +601,7 @@ class Amygdala {
 
     private function sniffData() {
         $home_path = rtrim( parse_url( home_url(), PHP_URL_PATH ), '/' );
-        $path = rtrim( substr( add_query_arg( [ ] ), strlen( $home_path ) ), '/' );
+        $path = rtrim( substr( esc_url( add_query_arg( [ ] ) ), strlen( $home_path ) ), '/' );
         $qs = array_keys( $this->getQuery()->getArrayCopy() );
         if ( ! empty( $qs ) ) {
             $path = remove_query_arg( $qs, $path );
